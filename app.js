@@ -4,7 +4,6 @@ const app = express();
 const port = 3000;
 const { connectToDb, getDb } = require("./db");
 const { ObjectId } = require("mongodb");
-const e = require("express");
 
 app.use(express.json());
 // db connection
@@ -24,18 +23,16 @@ connectToDb((error) => {
 app.get("/books", async (req, res) => {
   let books = [];
   try {
-     await db
+    await db
       .collection("books")
       .find()
       .sort({ author: 1 })
-      .forEach((book) => books.push(book)); 
-      if(books.length){
-        res.status(200).json({ books: books });
-      }else{
-        return res.status(404).json({message:"Books not found"})
-       
-
-      }
+      .forEach((book) => books.push(book));
+    if (books.length) {
+      res.status(200).json({ books: books });
+    } else {
+      return res.status(404).json({ message: "Books not found" });
+    }
   } catch (error) {
     log("error getting books:", error);
     res.status(500).json(error);
@@ -44,7 +41,7 @@ app.get("/books", async (req, res) => {
 });
 
 app.get("/books/:bookId", async (req, res) => {
-  if(ObjectId.isValid(req.params.bookId)){
+  if (ObjectId.isValid(req.params.bookId)) {
     try {
       const singleBook = await db
         .collection("books")
@@ -58,8 +55,19 @@ app.get("/books/:bookId", async (req, res) => {
       res.status(500).json({ error: error.message });
       log(error);
     }
-  }else{
-    res.status(500).json({error: "not a valid book id"})
+  } else {
+    res.status(500).json({ error: "not a valid book id" });
+  }
+});
+
+app.post('/books', async (req, res)=>{
+  const book = req.body
+  try {
+    const insertedBook = await db.collection('books').insertOne(book)
+    res.status(201).json(insertedBook)
+  } catch (error) {
+    log('error saving book:' + error.message)
+    res.status(500).json({ error: 'could not create a new document' })
   }
   
-});
+})
