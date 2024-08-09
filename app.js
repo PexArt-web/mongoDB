@@ -71,3 +71,44 @@ app.post('/books', async (req, res)=>{
   }
   
 })
+
+app.delete('/books/:bookId', async (req, res)=>{
+  if (ObjectId.isValid(req.params.bookId)) {
+    try {
+      const deleteSingleBook = await db
+        .collection("books")
+        .deleteOne({ _id: new ObjectId(req.params.bookId) });
+      if (!deleteSingleBook) {
+        return res.status(404).json({ message: "Book marked not deletion not found" });
+      } else {
+        res.status(200).json(deleteSingleBook);
+      }
+    } catch (error) {
+      res.status(500).json({message: 'could not delete book', error: error.message });
+      log(error);
+    }
+  } else {
+    res.status(500).json({ error: "not a valid book id" });
+  }
+})
+
+app.patch('/books/:bookId', async (req, res) => {
+  const update = req.body
+   if (ObjectId.isValid(req.params.bookId)) {
+    try {
+      const updateBook = await db
+        .collection("books")
+        .updateOne({ _id: new ObjectId(req.params.bookId) }, {$set:update});
+      if (!updateBook) {
+        return res.status(404).json({ message: "Book marked not deletion not found" });
+      } else {
+        res.status(200).json(updateBook);
+      }
+    } catch (error) {
+      res.status(500).json({message: 'could not delete book', error: error.message });
+      log(error);
+    }
+  } else {
+    res.status(500).json({ error: "not a valid book id" });
+  }
+})
