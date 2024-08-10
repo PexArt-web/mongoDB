@@ -1,6 +1,7 @@
 const { log } = console;
+require('dotenv').config()
 const { MongoClient } = require("mongodb");
-let dbUrl = "mongodb://localhost:27017";
+let dbUrl = process.env.MONGO_URL ;
 let dbconnection;
 
 module.exports = {
